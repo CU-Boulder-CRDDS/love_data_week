@@ -77,7 +77,7 @@ This page provides a brief synopsis of the various events over the course of CU 
 **Presenter: Jordan Wrigley**  
 **Time: 4:00 to 5:00 PM** 
 
-**Synopsis:** Play trivia with Data Librarian Jordan Wrigley in Kahoots for research data management. Trivia questions will cover data sources, terminology, grants sponsor requirements, and tools. Prizes will be awarded. 
+**Synopsis:** Play trivia with Data Librarian Jordan Wrigley in Kahoots for research data management. Trivia questions will cover data sources, terminology, grants sponsor requirements, and tools.
 
 **Link to workshop materials:** 
 
