@@ -83,12 +83,16 @@ This page provides a brief synopsis of the various events over the course of CU 
 
 ### *February 17, 2022 (Thursday)*
 
+### Exploring US Census Data in R Studio
+
 **Presenter: Adi Ranganath**  
 **Time: 10:00 AM to 12:00 PM**
 
 **Synopsis:** This hands-on workshop will introduce the United States census through R's *tidycensus* package. No prior experience with the census, or data analysis in R, is presumed, so all are welcome!
 
 **Link to workshop materials:** 
+
+### Feelings as Data: Exploring Twitter Data in R Studio
 
 **Presenter: Adi Ranganath**  
 **Time: 3:00 PM to 5:00 PM**
