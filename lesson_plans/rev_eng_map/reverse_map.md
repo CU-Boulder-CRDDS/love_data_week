@@ -77,7 +77,7 @@ Mapbox is a leader in web mapping technologies and offers some pretty nifty tool
 
 Head over to your [Mapbox Studio account](https://studio.mapbox.com/) and click the new style button:  
 
-![MB New Style Button](img/RM6.PNG)  
+![MB New Style Button](img/RM6.png)  
 
 For this example, we'll choose Monochrome, Light, then click Customize Monochrome:  
 
