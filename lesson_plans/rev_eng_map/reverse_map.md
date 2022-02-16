@@ -9,6 +9,11 @@ Presented by:
 - A Mapbox account: [Sign Up](https://account.mapbox.com/auth/signup/)
 - [QGIS](https://qgis.org/en/site/) (free!) or ArcGIS installed on your computer (we will use desktop GIS briefly to prepare data, you could get by without it for this workshop, but you'll want it to fully participate)
 
+## Land Acknowledgement:
+I live and work on the territories of the Núu-agha-tʉvʉ-pʉ̱ (Ute), Cheyenne, Arapahoe, and Očhéthi Šakówiŋ (Sioux) peoples. 48 contemporary tribal nations are historically tied to the lands that make up Colorado.  
+
+I encourage you to explore [Native-Land.ca](https://native-land.ca/) to learn more.  
+
 ## Agenda:
 1. Let's read the news!
 2. Thinking about the technology...
