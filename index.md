@@ -61,7 +61,7 @@ This page provides a brief synopsis of the various events over the course of CU 
 
 **Synopsis:** Ever see an interesting map in the news and wonder how it was created? In this workshop, we'll pluck a map from the news and discuss approaches to breaking down the methods and technology used to make it. We will then walk through the process of reverse engineering a previously published map.
 
-**Link to workshop materials:** 
+**[Link to workshop materials](https://github.com/CU-Boulder-CRDDS/love_data_week/blob/main/lesson_plans/rev_eng_map/reverse_map.md)** 
 
 ### Analyzing Data in R: A Crash Course for Social Scientists
 
