@@ -61,7 +61,7 @@ This page provides a brief synopsis of the various events over the course of CU 
 
 **Synopsis:** Ever see an interesting map in the news and wonder how it was created? In this workshop, we'll pluck a map from the news and discuss approaches to breaking down the methods and technology used to make it. We will then walk through the process of reverse engineering a previously published map.
 
-**[Link to workshop materials](https://github.com/CU-Boulder-CRDDS/love_data_week/blob/main/lesson_plans/rev_eng_map/reverse_map.md)** 
+[Workshop Materials](https://github.com/CU-Boulder-CRDDS/love_data_week/blob/main/lesson_plans/rev_eng_map/reverse_map.md)
 
 ### Analyzing Data in R: A Crash Course for Social Scientists
 
@@ -70,7 +70,7 @@ This page provides a brief synopsis of the various events over the course of CU 
 
 **Synopsis:** This workshop introduces students and applied researchers to R Studio as a data analysis and visualization platform. Topics covered include installing packages and loading libraries; reading in external datasets into the R Studio environment; basic data wrangling and manipulation; calculating summary statistics; visualizing data; and implementing regression analysis. All are welcome, but the workshop would be especially beneficial to social scientists who are already familiar with other data analysis platforms (such as SPSS or Stata), and are interested in adding R Studio to their research toolkit. 
 
-**Link to workshop materials:** 
+[Workshop Materials](https://cu-boulder-crdds.github.io/love_data_week/lesson_plans/r-crash-course/r_crash_course.html) 
 
 ### Love Data Trivia Night
 
@@ -90,7 +90,7 @@ This page provides a brief synopsis of the various events over the course of CU 
 
 **Synopsis:** This hands-on workshop will introduce the United States census through R's *tidycensus* package. No prior experience with the census, or data analysis in R, is presumed, so all are welcome!
 
-**Link to workshop materials:** 
+[Workshop Materials](https://cu-boulder-crdds.github.io/love_data_week/lesson_plans/census/census_overview.html) 
 
 ### Feelings as Data: Exploring Twitter Data in R Studio
 
@@ -99,7 +99,7 @@ This page provides a brief synopsis of the various events over the course of CU 
 
 **Synopsis:** This workshop rovides participants with a hands-on introduction to the process of extracting, processing, and exploring Twitter data in R Studio using the *rtweet* package.
 
-**Link to workshop materials:** 
+[Workshop Materials](https://cu-boulder-crdds.github.io/love_data_week/lesson_plans/twitter/twitter_workshop_ldw.html)  
 
 
 
