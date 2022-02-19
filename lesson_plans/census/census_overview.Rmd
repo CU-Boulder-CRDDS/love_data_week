@@ -1,0 +1,280 @@
+---
+title: "Census Data in R"
+author: "Aditya Ranganath"
+date: "2/17/2022"
+output:
+  html_document:
+        toc: true
+        toc_depth: 3
+        toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Preliminaries: Load Libraries
+
+```{r, message=F, results=F, warning=F}
+library(tidycensus)
+library(tidyverse)
+library(sf)
+library(tmap)
+```
+
+# Census Data Extraction: Basics
+
+## Extracting a table of variable codes
+
+```{r}
+# Calls up variable codes from 2010 decennial census and assigns to object named "decennial_variables"
+decennial_variables<-load_variables(2010,"sf1")
+```
+
+```{r}
+# Prints contents of "decennial_variables"
+decennial_variables
+```
+
+## Extracting data with ```get_decennial``` 
+
+### Example 1
+
+```{r, message=F, warning=F, results=F}
+# Generate a table of population by state, based on the 2010 decennial census
+state_population_2010<-get_decennial(geography = "state", 
+                                     variables = "P001001", 
+                                     geometry=TRUE,
+                                     year = 2010)
+```
+
+```{r}
+# prints "state_population_2010"
+state_population_2010
+```
+
+### Example 2
+
+```{r, results=FALSE, warning=FALSE, message=FALSE}
+# Generate a table of the population distribution across Colorado counties in the year 2010, based on the 2010 decennial census
+
+CO_county_population_2010<-get_decennial(geography = "county", 
+                                         state="CO",
+                                         variables = "P001001", 
+                                         year = 2010)
+```
+
+```{r}
+# Prints "CO_county_population_2010"
+CO_county_population_2010
+```
+
+## Cleaning Extracted Data
+
+```{r}
+# Clean up the table of CO population by county by removing the "variable" column, and renaming the "value" column as "Population", which we can do using the tidyverse's "dplyr" package
+
+CO_county_population_2010<-CO_county_population_2010 %>% 
+                           mutate(variable=NULL) %>% 
+                           rename(population=value)
+
+```
+
+```{r}
+# prints updated contents of "CO_county_population_2010"
+CO_county_population_2010
+```
+
+## Extracting Multiple Census Variables
+
+```{r}
+# Create a new object containing a dataset of rural population AND overall population by state,based on the 2010 decennial. Also, renames the variables, and arrange the dataset in descending order with respect to the rural population
+
+state_pop_ruralpop_2010<-get_decennial(geography = "state", 
+                                       variables = c("P001001", "P002005"),
+                                       output="wide",
+                                       year = 2010) %>% 
+                          rename(total_population=P001001, rural_population=P002005) %>% 
+                          arrange(desc(rural_population))
+```
+
+
+```{r}
+# prints contents of "state_pop_ruralpop_2010"
+state_pop_ruralpop_2010
+```
+
+## Creating New Variables
+
+```{r}
+#Using dplyr, generate a new variable in the dataset based on existing variables; 
+# in particular, create a variable called "rural_pct" that reflects the rural population 
+# as a percentage of the population, and then arranges it in descrend order
+# with respect to the new "rural_pct" variable
+
+state_pop_ruralpop_2010<- state_pop_ruralpop_2010 %>% 
+                            mutate(rural_pct=(rural_population/total_population)*100) %>% 
+                            arrange(desc(rural_pct))
+
+```
+
+```{r}
+# prints "state_pop_ruralpop_2010"
+state_pop_ruralpop_2010
+```
+
+## Filtering census datasets
+
+```{r}
+# Extracts observations from "state_pop_ruralpop_2010" where rural_pct>40 and assigns to a new object named "rural_pct_over40"
+
+rural_pct_over40<-state_pop_ruralpop_2010 %>%
+                  filter(rural_pct>40)
+```
+
+```{r}
+rural_pct_over40
+```
+
+**Student Exercise 1: Create a dataset of Colorado counties whose rural population percentage(with respect to the overall county population) exceededs 50% (based on the 2010 decennialcensus). Sort the dataset in descending order with respect to the rural percentage variable.**
+
+# Census Data Visualization
+
+## Using ggplot to visualize census data
+
+Make a graph that visually conveys the median age in Colorado, by county, based on the 2010 census.
+
+```{r, message=F, warning=F, results=F}
+# Extracts Colorado median age dataset
+median_age_CO<- get_decennial(geography = "county",
+                              state="CO",
+                              variables = "P013001", 
+                              geometry=TRUE,
+                              year = 2010) %>% 
+                rename(median_age=value) %>% 
+                mutate(County=str_remove(NAME, " County, Colorado")) %>% 
+                select(-NAME)
+```
+
+
+```{r}
+median_age_CO
+```
+
+```{r, fig.width=10, fig.height=10}
+# Creates ggplot visualization of CO median age
+median_age_CO__visualization<-
+  median_age_CO %>%
+  ggplot(aes(x = median_age, y = reorder(County, median_age))) + 
+  geom_point()+
+  labs(title="Median Age by County, CO", x="Median Age", y="County", caption="Source: United States census accessed via tidycensus")+
+  theme(plot.title=element_text(hjust=0.5),
+        plot.caption=element_text(size=5))
+```
+
+
+```{r, fig.width=10, fig.height=10}
+median_age_CO__visualization
+```
+
+## Using *tmap* to visualize census data
+
+### Static Map
+
+```{r}
+# Makes map object of median age
+median_age_CO_map<-
+  tm_shape(median_age_CO)+
+      tm_polygons(col="median_age",
+                  breaks=c(30,35,40,45,50),
+                  palette="YlGnBu", 
+                  midpoint=TRUE)+
+       tm_layout(frame=FALSE, 
+                 main.title="Median Age by County,\nColorado",  
+                main.title.position="left", 
+                legend.outside=TRUE,
+                attr.outside=TRUE)+
+      tm_credits("Source: US Census via tidycensus", position=c("right", "bottom"))
+```
+
+```{r}
+median_age_CO_map
+```
+
+### Webmap 
+
+```{r}
+# changes tmap_mode to "View"
+tmap_mode("view")
+```
+
+```{r}
+# prints "median_age_CO_map" in "View" mode
+median_age_CO_map
+```
+
+```{r}
+# changes mode to "lot"
+tmap_mode("plot")
+```
+
+```{r}
+# prints "median_age_CO_map" in "Plot" mode
+median_age_CO_map
+```
+
+# Extracting American Community Survey data
+
+```{r}
+# Extract 5-year ACS data variable codes for year ending in 2018
+ACS_5_2018<-load_variables(2018,"acs5")
+```
+
+```{r}
+# prints "ACS_5_2018"
+ACS_5_2018
+```
+
+```{r}
+# Uses 2018 ACS to extract median income estimates by county for CO
+median_income_CO_counties_2018<-get_acs(geography="county",
+                                     state="CO",
+                                     variables="B19013_001",
+                                     year=2018) %>% 
+                            rename(median_income=estimate) %>% 
+                            arrange(desc(median_income))
+```
+
+
+```{r}
+median_income_CO_counties_2018
+```
+
+
+# ACS Data Visualization
+
+```{r}
+# Creates point visualization of median income by county with error bars
+median_income_CO_counties_2018_viz<-
+     median_income_CO_counties_2018 %>% 
+        mutate(County_Name=str_remove_all(NAME,"County, Colorado")) %>% 
+          ggplot(aes(x=median_income,y=reorder(County_Name, median_income)))+
+           geom_errorbarh(aes(xmin = median_income - moe, xmax = median_income + moe)) +
+           geom_point(color = "blue", size = 3)+
+                      labs(title="Median Income in Colorado, by County (2018)",
+                              y="", x="Median Income Estimate from 5 year ACS\n(Bars indicate margin of error)")+
+                             theme(plot.title=element_text(hjust=0.5))
+```
+
+
+```{r, fig.width=10, fig.height=10}
+# prints "median_income_CO_counties_2018_viz"
+median_income_CO_counties_2018_viz
+```
+
+
+
+
+
+
+

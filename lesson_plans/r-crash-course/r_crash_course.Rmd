@@ -1,0 +1,724 @@
+---
+title: "R Crash Course"
+author: "Aditya Ranganath"
+date: "2/15/2022"
+output:
+  html_document:
+        toc: true
+        toc_depth: 3
+        toc_float: true
+---
+# Introduction
+
+Please load the following packages:
+
+```{r, message=F, warning=F}
+library(tidyverse)
+library(stargazer)
+library(ggeffects)
+library(psych)
+library(janitor)
+library(fastDummies)
+library(gtsummary)
+```
+
+```{r, echo=F, message=F, warning=F}
+library(kableExtra)
+```
+
+# Loading data
+
+## Reading in data from the working directory 
+
+```{r, echo=-1, eval=F}
+setwd("/Users/adra7980/Documents/git_repositories/r_primer/workshop_data")
+# Read in persson and tabellini dataset from working directory
+persson_tabellini_original<-read_csv("persson_tabellini_workshop.csv")
+```
+
+## Reading data directly from an online source (Alternative method)
+
+```{r}
+# Read in persson and tabellini dataset from Github repo
+persson_tabellini_original<-read_csv("https://raw.githubusercontent.com/aranganath24/r_primer/main/workshop_data/persson_tabellini_workshop.csv")
+```
+
+## Make a copy of the dataset
+
+```{r}
+# Make a copy of the dataset so we don't alter the original dataset; then, view
+# the copied dataset 
+pt_copy<-persson_tabellini_original
+```
+
+```{r}
+# Print contents of "pt_copy"
+pt_copy
+```
+
+```{r}
+View(pt_copy)
+```
+
+```{r, echo=FALSE}
+kable(head(pt_copy))
+```
+
+# Summary statistics
+
+## Generating a table of summary statistics
+
+```{r}
+# Generate summary statistics for "pt_copy" and assign to new object named "pt_copy_summarystats1"
+pt_copy_summarystats1<-describe(pt_copy)
+```
+
+```{r}
+# Print contents of "pt_copy_summarystats1"
+pt_copy_summarystats1
+```
+
+```{r, echo=F}
+kable(head(pt_copy_summarystats1))
+```
+
+## Exporting a summary statistics table as a CSV file
+
+```{r}
+# add rownames to pt_copy_summarystats1
+pt_copy_summarystats1$variable<-rownames(pt_copy_summarystats1)
+
+# make "variables" field the first one in the dataset
+pt_copy_summarystats1<-pt_copy_summarystats1 %>% relocate(variable)
+```
+
+```{r}
+# write out summary statistics table as CSV file
+write_csv(pt_copy_summarystats1, "/Users/adra7980/Documents/git_repositories/r_primer/written_data/pt_copy_summarystats1.csv")
+```
+
+## Using ```stargazer``` to create and export summary statistics
+
+```{r}
+# Make the summary stats into a data frame
+pt_copy_df<-as.data.frame(pt_copy)
+```
+
+```{r, results=FALSE}
+# Use stargazer to export summary statistics as a text file
+stargazer(pt_copy_df, type="text", title="Descriptive Statistics", digits=1, out="summary_stats.txt")
+```
+
+```{r, results=FALSE}
+# Use stargazer to export summary statistics as an html file
+stargazer(pt_copy_df, type="text", title="Descriptive Statistics", digits=1, out="summary_stats.html")
+
+```
+
+## Summary statistics and grouping variables
+
+### Subsetting summary statistics by group with the ```describe``` function
+
+```{r}
+# Creates summary statistics for each continent grouping, and puts results in list named "summary_stats_by_continent"
+summary_stats_by_continent<-describeBy(pt_copy, pt_copy$continent)
+```
+
+```{r}
+# Accessing continent-level summary statistics for africa from the "summary_stats_by_continent" list
+summary_stats_by_continent[["africa"]]
+```
+
+```{r}
+# Accessing continent-level summary statistics for africa from the "summary_stats_by_continent" list; alternate syntax
+summary_stats_by_continent %>% pluck("africa")
+```
+
+```{r}
+# Group-level summary statistics can be assigned to their own object for easy retrieval
+asia_europe_summary_statistics<-summary_stats_by_continent %>% pluck("asiae")
+```
+
+```{r}
+# retrieve summary statistics for Asia/Europe 
+asia_europe_summary_statistics
+```
+
+The "vars" column in the summary statistics table is an index variable; it can be removed with the following:
+
+```{r}
+# removes "vars" indexing variable from "asia_europe_summary_statistics"
+asia_europe_summary_statistics<-asia_europe_summary_statistics %>% select(-vars)
+```
+
+```{r}
+# Prints contents of "asia_europe_summary_statistics"
+asia_europe_summary_statistics
+```
+
+### Generating group-level summary statistics with the ```summarize``` function from ```dplyr``` 
+
+```{r}
+# Generate a table that displays summary statistics for trade at the continent level and assign to object named "trade_age_by_continent"
+trade_age_by_continent<-pt_copy %>% group_by(continent) %>% 
+                                    summarise(meanTrade=mean(trade),sdTrade=sd(trade),
+                                              meanAge=mean(age), sdAge=sd(age),
+                                              n=n())
+```
+
+```{r}
+# prints contents of "trade_age_by_continent"
+trade_age_by_continent
+```
+
+## Generating crosstabs
+
+### Crosstabs with ```tabyl```
+
+```{r}
+# Creates cross-tab showing the breakdown of federal/non federal across continents
+crosstab_federal_continent<-pt_copy %>% tabyl(federal, continent)
+```
+
+```{r}
+# Prints contents of "crosstab_federal_continent"
+crosstab_federal_continent
+```
+
+```{r}
+# Creates cross-tab showing the breakdown of majoritarian/nonmajoritarian across continents
+crosstab_majoritarian_continent<-pt_copy %>% tabyl(maj, continent)
+```
+
+```{r}
+# prints contents of "crosstab_majoritarian_continent"
+crosstab_majoritarian_continent
+```
+
+### Crosstabs with ```tbl_cross```
+
+```{r}
+# Uses "tbl_cross" function to create crosstab showing breakdown of federal/non-federal by continent
+tbl_cross(pt_copy, row=federal, col=continent)
+```
+
+```{r}
+# Uses "tbl_cross" function to create crosstab showing breakdown of majoritarian/non majoritarian by continent
+tbl_cross(pt_copy, row=maj, col=continent)
+```
+
+# Basic Data Cleaning and Preparation Tasks
+
+## Rearranging columns
+
+```{r}
+# Prints contents of "pt_copy"
+pt_copy
+```
+
+```{r}
+# bring the "country" column to the front of the dataset
+pt_copy<-pt_copy %>% relocate(country)
+pt_copy
+```
+
+```{r}
+# bring the "country", "list", "trade", "oecd" columns to the front of the dataset
+pt_copy<-pt_copy %>% relocate(country, list, trade, oecd)
+
+# prints updated contents of "pt_copy"
+pt_copy
+```
+
+## Renaming variables
+
+```{r}
+## Renaming a variable (renames "list" to "party_list")
+pt_copy<-pt_copy %>% rename(party_list=list)
+
+# prints updated contents of "pt_copy"
+pt_copy
+```
+
+
+## Sorting a dataset in ascending or descending order with respect to a variable
+
+```{r}
+# sorting in ascending (low to high) order with respect to the "trade" variable
+pt_copy<-pt_copy %>% arrange(trade)
+
+# prints updated contents of "pt_copy"
+pt_copy
+```
+
+```{r}
+# sorting in descending (high to low) order with respect to the "trade" variable
+pt_copy<-pt_copy %>% arrange(desc(trade))
+
+# prints updated contents of "pt_copy"
+pt_copy
+```
+
+## Creating new variables based on existing variables
+
+```{r}
+# Create new variable named "non_catholic_80" that is calculated by substracting the Catholic share of the population in 1980 ("catho80") from 100  and relocates "country", "catho80", and the newly created "non_catholic_80" to the front of the dataset
+pt_copy<-pt_copy %>% mutate(non_catholic_80=100-catho80) %>% 
+                     relocate(country, catho80, non_catholic_80)
+```
+
+```{r}
+# prints updated contents of "pt_copy"
+pt_copy
+```
+
+## Selecting or deleting variables 
+
+### Selecting variables
+
+```{r}
+# Selects "country", "cgexp", "cgrev", and "trade" variables from the "pt_copy" dataset
+pt_copy %>% select(country, cgexp, cgrev, trade)
+```
+
+```{r}
+# Selects "country", "cgexp", "cgrev", and "trade" variables from the "pt_copy" dataset and assigns the selection to a new object named "pt_copy_selection"
+pt_copy_selection<-pt_copy %>% select(country, cgexp, cgrev, trade)
+```
+
+```{r}
+# Prints Contents of "pt_copy_selection"
+pt_copy_selection
+```
+
+### Deleting variables 
+
+```{r}
+# Deletes "cgrev" variable from "pt_copy_selection" dataset
+pt_copy_selection %>% select(-cgrev)
+```
+
+```{r}
+# Deletes "cgrev" AND "cgexp" variables from "pt_copy_selection" dataset
+pt_copy_selection %>% select(-c(cgexp, cgrev))
+```
+
+```{r}
+# Deletes "cgrev" AND "cgexp" variables from "pt_copy_selection" dataset and assigns the result to a new object named "pt_copy_trade"
+pt_copy_trade<-pt_copy_selection %>% select(-c(cgexp, cgrev))
+```
+
+```{r}
+# Prints contents of "pt_copy_trade_revexp"
+pt_copy_trade
+```
+
+```{r}
+# Deletes "cgrev" AND "cgexp" variables from "pt_copy_selection" dataset and assigns the result to "pt_copy_selection", thereby overwriting the existing version of "pt_copy_selection" with a new version that reflects these deletions
+pt_copy_selection<-pt_copy_selection %>% select(-c(cgexp, cgrev))
+```
+
+```{r}
+# prints updated contents of "pt_copy_selection"
+pt_copy_selection
+```
+
+## Recoding variables
+
+### Creating Dummy Variables from Continuous Numeric Variables
+
+```{r}
+# Creates a new dummy variable based on the existing "trade" variable named "trade_open" (which takes on a value of "1" if "trade" is greater than or equal to 77, and 0 otherwise) and then moves the newly created variable to the front of the dataset along with "country" and "trade"; all changes are assigned to "pt_copy", thereby overwriting the existing version of "pt_copy"
+
+pt_copy<-pt_copy %>% mutate(trade_open=ifelse(trade>=77, 1, 0)) %>% 
+                     relocate(country, trade_open, trade)
+```
+
+```{r}
+# prints updated contents of "pt_copy"; note the newly created dummy variable
+pt_copy
+```
+
+### Creating categorical variables from continuous numeric variables
+
+```{r}
+# Creates a new variable in the "pt_copy" dataset named "trade_level" (that is coded as "Low Trade" when the "trade" variable is greater than 15 and less than 50, coded as "Intermediate Trade" when "trade" is greater than or equal to 50 and less than 100, and coded as "High TradE" when "trade" is greater than or equal to 100), and then reorders the dataset such that "country", "trade_level", and "trade" are the first three variables in the dataset
+pt_copy<-pt_copy %>% mutate(trade_level=case_when(trade>15 & trade<50~"Low_Trade",
+                                                  trade>=50 & trade<100~"Intermediate_Trade",
+                                                  trade>=100~"High_Trade")) %>% 
+                    relocate(country, trade_level, trade)
+```
+
+```{r}
+# prints updated contents of "pt_copy"; note the newly created categorical variable
+pt_copy
+```
+
+### Creating dummmy variables from categorical variables 
+
+```{r, message=FALSE}
+# Creates dummy variables from "trade_level" column, and relocates the new dummies to the front of the dataset
+pt_copy<-pt_copy %>% dummy_cols("trade_level") %>% 
+                      relocate(country, trade_level, trade_level_High_Trade, trade_level_Intermediate_Trade, trade_level_Low_Trade)
+```
+
+```{r}
+# Prints contents of "pt_copy"
+pt_copy
+```
+
+## Subsetting rows data based on criteria
+
+### The ```filter``` function
+
+```{r}
+# Extracts OECD observations in "pt_copy" and assigns to object named "oecd_countries"
+oecd_countries<-pt_copy %>% filter(oecd==1) %>% 
+                            relocate(country, oecd)
+```
+
+```{r}
+# Prints contents of "oecd_countries"
+oecd_countries
+```
+
+```{r}
+# Extracts observations for which cgrev (central government revenue as % of gdp)>40, and assigns to object named "high_revenues"
+high_revenues<-pt_copy %>% filter(cgrev>40) %>% 
+                              relocate(country, cgrev)
+                        
+```
+
+```{r}
+# Prints contents of "high_revenues"
+high_revenues
+```
+
+```{r}
+# Extracts observations for which the "catho80" variable is less than or equal to 50
+minority_catholic<-pt_copy %>% filter(catho80<=50) %>% 
+                               relocate(country, catho80)
+```
+
+```{r}
+# Prints contents of "minority_catholic"
+minority_catholic
+```
+
+Using the ```&``` operator 
+
+```{r}
+# Extracts federal OECD countries (where oecd=1 AND federal=1) and assigns to a new object named "oecd_federal_countries"
+oecd_federal_countries<-pt_copy %>% filter(oecd==1 & federal==1) %>% 
+                                      relocate(country, oecd, federal)
+```
+
+```{r}
+# prints contents of "oecd_federal_countries"
+oecd_federal_countries
+```
+
+Using the ```|``` operator
+
+```{r}
+# Extracts observations that are in Africa ("africa") OR in Asia/Europe ("asiae) and assigns to an object named "asia_europe_africa"
+asia_europe_africa<-pt_copy %>% filter(continent=="africa"|continent=="asiae") %>% 
+                                  relocate(continent)
+```
+
+```{r}
+# Prints contents of "asia_europe_africa"
+asia_europe_africa
+```
+
+Filtering for observations that do NOT meet a condition:
+
+```{r}
+# Extracts all non-Africa observations and assigns to object named "pt_copy_sans_africa"
+pt_copy_sans_africa<-pt_copy %>% filter(continent!="africa") %>% relocate(continent)
+```
+
+```{r}
+# Prints contents of "pt_copy_sans_africa"
+pt_copy_sans_africa
+```
+
+# Exploratory visualizations using ```ggplot```
+
+## Bar charts
+
+### Basic bar chart
+
+```{r}
+# Creates a bar chart of the "cgexp" variable (central government expenditure as a share of GDP) and assigns the plot to an object named "cgexp_viz1"
+cgexp_viz1<-pt_copy %>% 
+  drop_na(cgexp) %>% 
+  ggplot()+
+  geom_col(aes(x=reorder(country, cgexp), y=cgexp))+
+  labs(title="Central Govt Expenditure as Pct of GDP (1990-1998 Average)", x="Country Name", 
+       y="CGEXP")+
+  theme(plot.title=element_text(hjust=0.5),
+        axis.text.x = element_text(angle = 90))
+
+# Prints contents of "cgexp_viz1"
+cgexp_viz1
+```
+
+### Inverted bar chart 
+
+```{r, fig.width=8, fig.height=10}
+# Creates an inverted bar chart of the "cgexp" variable (with countries on vertical axis) and assigns the result to an object named "cgexp_viz2"
+cgexp_viz2<-pt_copy %>% 
+           drop_na(cgexp) %>% 
+           ggplot()+
+           geom_col(aes(x=reorder(country, cgexp), y=cgexp))+
+           coord_flip()+
+           labs(title="Central Govt Expenditure as Pct of GDP (1990-1998 Average) ", x="Country Name", 
+                y="CGEXP")+
+           theme(plot.title=element_text(hjust=0.5)) 
+
+# Prints contents of "cgexp_viz2"
+cgexp_viz2
+```
+
+## Scatterplots
+
+### Basic scatterplot
+
+```{r}
+# Creates scatterplot with "cgexp" variable on x-axis and "trade" variiable on y-axis and assigns to object named "scatter_cgexp_trade"
+scatter_cgexp_trade<-
+  pt_copy %>% 
+  drop_na(cgexp) %>% 
+  ggplot()+
+  geom_point(aes(x=cgexp, y=trade))+
+  labs(title="Trade Share of GDP \nas a function of\n Central Govt Expenditure (1990-1998 Average) ", 
+       x="Central Government Expenditure (Pct of GDP)", y="Overall Trade (Pct of GDP)")+
+  theme(plot.title=element_text(hjust=0.5)) 
+
+# Prints contents of "scatter_cgexp_trade"
+scatter_cgexp_trade
+```
+
+### Grouped scatterplot
+
+```{r}
+# Creates scatterplot with "cgexp" variable on x-axis and "trade" variiable on y-axis, and uses different color points for different continents; plot is assigned to object named "scatter_cgexp_trade_grouped"
+scatter_cgexp_trade_grouped<-
+  pt_copy %>% 
+  drop_na(cgexp) %>% 
+  ggplot()+
+  geom_point(aes(x=cgexp, y=trade, color=continent))+
+  labs(title="Trade Share of GDP \nas a function of\n Central Govt Expenditure (1990-1998 Average) ", 
+       x="Central Government Expenditure (Pct of GDP)", y="Overall Trade (Pct of GDP)")+
+  theme(plot.title=element_text(hjust=0.5)) 
+
+# Prints contents of "scatter_cgexp_trade_grouped"
+scatter_cgexp_trade_grouped
+```
+
+### Scatterplot with line of best fit
+
+```{r, fig.cap="test"}
+# Creates scatterplot with "cgexp" variable on x-axis and "trade" variiable on y-axis, adds line of best fit; plot assigned to object named "scatter_cgexp_trade_line"
+scatter_cgexp_trade_line<-
+  pt_copy %>% 
+  drop_na(cgexp) %>% 
+  ggplot()+
+  geom_point(aes(x=cgexp, y=trade))+
+  geom_smooth(aes(x=cgexp, y=trade), method="lm")+
+  labs(title="Trade Share of GDP \nas a function of\n Central Govt Expenditure (1990-1998 Average) ", 
+       x="Central Government Expenditure (Pct of GDP)", y="Overall Trade (Pct of GDP)")+
+  theme(plot.title=element_text(hjust=0.5)) 
+
+# Prints contents of "scatter_cgexp_trade_line"
+scatter_cgexp_trade_line
+```
+
+# Elementary Data Analysis
+
+## Computing correlations 
+
+### Computing correlations between two variables in a dataset
+
+```{r}
+# Prints correlation coefficient between "trade" and "cgexp" variables
+cor.test(pt_copy$trade, pt_copy$cgexp, use="complete.obs")
+```
+
+### Generating and exporting a correlation matrix 
+
+```{r}
+# Extracts variables for which we want a correlation matrix
+desired_variables<-pt_copy %>% select(trade, cgexp, cgrev, catho80)
+```
+
+```{r}
+# Creates correlation matrix from "desired_variables" object and assigns to object named "cor_matrix"
+cor_matrix<-cor(desired_variables, use="complete.obs")
+```
+
+```{r}
+# prints contents of "cor_matrix"
+cor_matrix
+```
+
+```{r}
+# Exports correlation matrix assigned to "cor_matrix" object using stargazer
+stargazer(cor_matrix, type="text", title="Correlation Matrix", digits=3, out="corr_table.html")
+
+```
+
+## Basic regression analysis
+
+### Running a regression model
+
+```{r}
+# Implements regression with "gexp" as DV, and assigns to object named "regression1"
+regression1<-lm(cgexp~gastil+lyp+trade+prop1564+prop65+federal+oecd, data=pt_copy)
+```
+
+```{r}
+# Prints regression table
+summary(regression1)
+```
+
+### Working with categorical variables in a regression model
+
+**Working with categorical variables by using factors**
+
+```{r}
+# Set Continent variable as factor
+pt_copy$continent<-as.factor(pt_copy$continent)
+
+# Examines levels of factor variable
+levels(pt_copy$continent)
+
+# Relevels factor variable to set "other" as reference category
+pt_copy$continent<-relevel(pt_copy$continent, ref="other")
+```
+
+```{r}
+# Run regression with the continent variable and assign result to object named "regression2"
+regression2<-lm(cgexp~gastil+lyp+trade+prop1564+prop65+federal+continent+col_espa+col_uka+col_otha+oecd, data=pt_copy)
+
+# Prints regression table for "regression2"
+summary(regression2)
+```
+
+**Working with categorical variables by creating dummy variables**
+
+```{r}
+# Use "continent" field to make continent dummy variables
+pt_copy<-pt_copy %>% dummy_cols("continent")
+```
+
+```{r}
+# run regression with continent dummies, with "other" category excluded
+regression2_alt<-lm(cgexp~gastil+lyp+trade+prop1564+prop65+federal+continent_africa+
+                      continent_asiae+continent_laam+col_espa+col_uka+col_otha+oecd,
+                      data=pt_copy)
+```
+
+```{r}
+# Prints "regression2_alt" regression table
+summary(regression2_alt)
+```
+
+### Working with interaction terms in regression models
+
+```{r}
+# run regression with interaction term between "trade" and "federal"
+trade_federal_interaction<-lm(cgexp~trade*federal, data=pt_copy)
+```
+
+```{r}
+# prints "trade_federal_interaction" regression table
+summary(trade_federal_interaction)
+```
+
+**Plotting marginal effects**
+
+```{r}
+# Finds mean value of trade variable
+mean(pt_copy$trade)
+```
+
+```{r}
+# Calculates marginal effects of federalism, with "trade" held at mean
+marginal_effect_federalism<-ggpredict(trade_federal_interaction, terms="federal", condition=c(trade=78.7659))
+```
+
+```{r}
+# Prints marginal effects table
+marginal_effect_federalism
+```
+
+```{r}
+# Plot marginal effects of federalism
+ggpredict(trade_federal_interaction, terms="federal") %>% 
+  ggplot(aes(x, predicted))+
+  geom_point()+
+  geom_errorbar(aes(ymin=conf.low, ymax=conf.high),width=0.05)+
+  scale_x_continuous(breaks=(seq(0,1, by=1)))+
+  labs(title="Predicted Effects of Federalism on Gov't Expenditure\n(with trade set to mean)", y="Predicted Expenditure", x="Federalism")
+```
+
+### Creating and exporting regression tables
+
+```{r}
+# Put the regression models you want in your regression table in a list
+model_list<-list(regression1,regression2)
+```
+
+```{r, message=FALSE, results=F}
+# Exporting table as text file
+stargazer(model_list, type="text", out="cgexp_regressions.txt")
+```
+
+```{r, message=F, results=F}
+# Exporting regression table as html file
+stargazer(model_list, type="html", out="cgexp_regressions.html")
+```
+
+# Working with multiple datasets
+
+## Merging data
+
+```{r, eval=FALSE}
+# Read in capital mobility from working directory
+capital_mobility<-read_csv("chinn_eto_capitalopenness_summary.csv")
+```
+
+Alternatively, 
+
+```{r}
+# Read in capital mobility data from Github repository
+capital_mobility<-read_csv("https://raw.githubusercontent.com/aranganath24/r_primer/main/workshop_data/chinn_eto_capitalopenness_summary.csv")
+```
+
+```{r}
+# View capital mobility data
+capital_mobility
+```
+
+```{r}
+# Joins "capital_mobility" to "pt_copy" using "ctrycd" as the join field (only keeps observations from "pt_copy"; countries in "capital_mobility" but not "pt_copy" are not included in the final joined dataset; joined dataset is assigned to an object named "pt_capitalmobility")
+pt_capitalmobility<-inner_join(pt_copy, capital_mobility, by="ctrycd")
+```
+
+```{r, echo=FALSE}
+pt_capitalmobility<-pt_capitalmobility %>% relocate(country, kaopen)
+```
+
+```{r}
+# prints contents of "pt_capitalmobility"
+pt_capitalmobility
+```
+
+
+
+
+
+
+
