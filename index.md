@@ -30,7 +30,7 @@ This page provides a brief synopsis of the various events over the course of CU 
 
 **Synopsis:** Data is the current gold rush in today’s world! But how do you find, obtain, load, view, work with, analyze, visualize, and package all your data to share with colleagues and the world at-large? That’s where Python comes in. Python is well suited and the number one language for digging deep into your data to manipulate, analyze, visualize, and share it with the world. In this workshop, we will look at some of the foundation Python building blocks to aid you in all your data adventures and storytelling. Along the way, we will also discuss where do you go from here for several of the main features we will cover. By the end of the session, you will have a fundamental knowledge of how to use Python to obtain data, how to load it and view it and manipulate it. This will lead us into how to perform analytics on your data and how to visualize your data. Open to anybody knowing no Python to intermedia Pythoneers who want to learn about how to leverage their data needs using Python. No knowledge of Python is required but we will be skipping over some of the fundamental coding mechanics for any/all languages. Bring a computer with Jupyter and Python installed. 
 
-**Link to workshop materials:** 
+[Workshop Materials](https://cu-boulder-crdds.github.io/love_data_week/lesson_plans/Python_For_Data/Python_for_Data.ipynb) 
 
 ## *February 15, 2022 (Tuesday)*
 
@@ -50,7 +50,7 @@ This page provides a brief synopsis of the various events over the course of CU 
 
 **Synopsis:** Plotly is a modern, rich graphics package providing presentation and publication-quality graphics along with Jupyter and webpage based interactive controls for data exploration, and which can be extended out to rich interactive dashboards. Learn how to develop various kinds of Plotly charts and visualizations, how to customize them and venture into some more advanced features including other plotting extensions, animation, and interactive visualizations. By the end of the session you will have a fundamental knowledge of what Plotly has to offer, how its organized and utilized. How to create and save static plots, charts, and other images as well as how to make them interactive with a tease at building rich, deployable dashboards. 
 
-**Link to workshop materials:** 
+[Workshop Materials](https://osf.io/se956/) 
 
 ## *February 16, 2022 (Wednesday)*
 
