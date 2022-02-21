@@ -32,17 +32,6 @@ This page provides a brief synopsis of the various events over the course of CU 
 
 [Workshop Materials](https://cu-boulder-crdds.github.io/love_data_week/lesson_plans/Python_For_Data/Python_for_Data.ipynb) 
 
-## *February 15, 2022 (Tuesday)*
-
-### Introduction to Digital Humanities: Oral History as Data
-
-**Presenter: Nickoal Eichmann-Kalwara**  
-**Time: 10:00 AM to 11:30 AM**
-
-**Synopsis:** Oral history interviews are forms of qualitative data that offer unique insights into the communities we engage with and study. This workshop will offer an introduction to organizing and thinking about your oral history interviews as data, in order to enable computational readings and render visualizations for analysis and engagement. We’ll then demonstrate the digital humanities/minimal computing tool that can facilitate your processes and data publishing, Oral History (as) Data, and explore sample digital projects that utilize this minimal computing approach. Participants are encouraged to bring their own data for discussion and consultation. This is a beginner workshop with no prerequisites. 
-
-**Link to workshop materials:** 
-
 ### Data Visualization: Diving in with Plotly
 
 **Presenter: Tim Dunn**  
@@ -101,7 +90,16 @@ This page provides a brief synopsis of the various events over the course of CU 
 
 [Workshop Materials](https://cu-boulder-crdds.github.io/love_data_week/lesson_plans/twitter/twitter_workshop_ldw.html)  
 
+## *February 18, 2022 (Friday)*
 
+### Introduction to Digital Humanities: Oral History as Data
+
+**Presenter: Nickoal Eichmann-Kalwara**  
+**Time: 10:00 AM to 11:30 AM**
+
+**Synopsis:** Oral history interviews are forms of qualitative data that offer unique insights into the communities we engage with and study. This workshop will offer an introduction to organizing and thinking about your oral history interviews as data, in order to enable computational readings and render visualizations for analysis and engagement. We’ll then demonstrate the digital humanities/minimal computing tool that can facilitate your processes and data publishing, Oral History (as) Data, and explore sample digital projects that utilize this minimal computing approach. Participants are encouraged to bring their own data for discussion and consultation. This is a beginner workshop with no prerequisites. 
+
+[Workshop Materials](https://osf.io/36erq/)
 
 
 
