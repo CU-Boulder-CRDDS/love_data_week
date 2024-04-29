@@ -5,6 +5,8 @@ layout: default
 
 # Love Data Week @ CU Boulder 
 
+***This is an archived site for Love Data Week 2022. For recent events, please visit our [Love Data Week website](https://www.colorado.edu/crdds/love-data-week).***
+
 Love Data Week is an international celebration of data that aims to promote good data practices, while building and engaging a community around topics related to research data management, sharing, preservation, and reuse. 
 During the 2022 Love Data Week (February 14 - 18), the Center for Research Data & Digital Scholarship (CRDDS) will host a series of workshops and activities to introduce more people to the center, its resources and services and show the campus community a path to better use and management of data in their work. 
 
